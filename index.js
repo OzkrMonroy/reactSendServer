@@ -1,9 +1,11 @@
-const express = require('express');
+const express = require("express");
+const connectDB = require("./config/db");
 
-const app = express()
+const app = express();
+connectDB();
 
 const PORT = process.env.PORT || 4000;
 
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`El servidor se está ejecutando en el puerto ${PORT}`);
-})
+});

@@ -1,7 +1,17 @@
-const User = require("../models/User")
+const User = require("../models/User");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator')
+require('dotenv').config({ path: 'variables.env' });
 
 exports.authenticatedUser = async (req, res, next) => {
+
+  const errors = validationResult(req);
+
+  if(!errors.isEmpty()){
+    return res.status(400).json({errors: errors.array()});
+  }
+
   const { userEmail, userPassword } = req.body
 
   let userExist = await User.findOne({ userEmail });
@@ -12,7 +22,13 @@ exports.authenticatedUser = async (req, res, next) => {
   }
 
   if(bcrypt.compare(userPassword, userExist.userPassword)){
-    return res.status(200).json({ msg: 'Password is correct'});
+    const token = jwt.sign({
+      userId: userExist._id,
+      userName: userExist.userName
+    }, process.env.SECRET_WORD, { expiresIn: '8h'});
+
+    res.json({token});
+
   }else {
     res.status(401).json({ msg: 'Password is incorrect'});
     return next();

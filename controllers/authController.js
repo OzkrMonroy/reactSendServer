@@ -35,4 +35,19 @@ exports.authenticatedUser = async (req, res, next) => {
   }
 }
 
-exports.getAuthenticatedUser = async (req, res) => {}
+exports.getAuthenticatedUser = async (req, res, next) => {
+  const authHeader = req.get('Authorization');
+
+  if(authHeader){
+    const token = authHeader.split(' ')[1];
+    try {
+      const user = jwt.verify(token, process.env.SECRET_WORD);
+      res.json({user})
+    } catch (error) {
+      console.log(error);
+      res.json({msg: 'Invalid Token'});
+    }
+  }
+
+  return next();
+}

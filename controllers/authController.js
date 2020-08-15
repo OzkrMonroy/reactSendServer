@@ -1,7 +1,7 @@
 const User = require("../models/User");
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { validationResult } = require('express-validator')
+const { validationResult } = require('express-validator');
 require('dotenv').config({ path: 'variables.env' });
 
 exports.authenticatedUser = async (req, res, next) => {
@@ -35,19 +35,6 @@ exports.authenticatedUser = async (req, res, next) => {
   }
 }
 
-exports.getAuthenticatedUser = async (req, res, next) => {
-  const authHeader = req.get('Authorization');
-
-  if(authHeader){
-    const token = authHeader.split(' ')[1];
-    try {
-      const user = jwt.verify(token, process.env.SECRET_WORD);
-      res.json({user})
-    } catch (error) {
-      console.log(error);
-      res.json({msg: 'Invalid Token'});
-    }
-  }
-
-  return next();
+exports.getAuthenticatedUser = (req, res, next) => {
+  res.json({user: req.user})
 }

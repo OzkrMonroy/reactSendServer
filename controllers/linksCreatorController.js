@@ -39,8 +39,8 @@ exports.createFileLink = async (req, res, next) => {
 }
 
 exports.getFileLink = async (req, res, next) => {
-  const { url } = req.params.url;
-  const verifiedLink = await Link.findOne({url});
+  const { url } = req.params;
+  const verifiedLink = await Link.findOne({fileUrl: url});
 
   if(!verifiedLink){
     res.status(404).json({msg: 'Link doesn\'t exists'});
@@ -48,4 +48,17 @@ exports.getFileLink = async (req, res, next) => {
   }
   
   res.json({msg: verifiedLink.fileName});
+
+  const { fileDownloadsCount, fileName } = verifiedLink;
+  
+  if(fileDownloadsCount === 1){
+    console.log('Borrando...');
+    req.file = fileName
+    await Link.findOneAndRemove({fileUrl: url})
+    next()
+  }else{
+    verifiedLink.fileDownloadsCount--;
+    verifiedLink.save();
+    console.log('restando...');
+  }
 }

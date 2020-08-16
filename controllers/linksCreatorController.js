@@ -31,9 +31,21 @@ exports.createFileLink = async (req, res, next) => {
 
   try {
     await newLink.save();
-    return res.json({msg: `${newLink}`});
+    return res.json({msg: `${newLink.fileUrl}`});
     next();
   } catch (error) {
     console.log(error);
   }
+}
+
+exports.getFileLink = async (req, res, next) => {
+  const { url } = req.params.url;
+  const verifiedLink = await Link.findOne({url});
+
+  if(!verifiedLink){
+    res.status(404).json({msg: 'Link doesn\'t exists'});
+    return next();
+  }
+  
+  res.json({msg: verifiedLink.fileName});
 }

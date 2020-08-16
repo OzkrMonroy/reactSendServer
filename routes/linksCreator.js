@@ -14,4 +14,6 @@ router.post(
   linksCreatorController.createFileLink
 );
 
+router.get('/:url', linksCreatorController.getFileLink);
+
 module.exports = router;

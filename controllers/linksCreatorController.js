@@ -43,8 +43,7 @@ exports.getFileLink = async (req, res, next) => {
   const verifiedLink = await Link.findOne({fileUrl: url});
 
   if(!verifiedLink){
-    res.status(404).json({msg: 'Link doesn\'t exists'});
-    return next();
+    return res.status(404).json({msg: 'Link doesn\'t exists'});
   }
   
   res.json({msg: verifiedLink.fileName});

@@ -21,7 +21,7 @@ exports.authenticatedUser = async (req, res, next) => {
     return next()
   }
 
-  if(bcrypt.compare(userPassword, userExist.userPassword)){
+  if(bcrypt.compareSync(userPassword, userExist.userPassword)){
     const token = jwt.sign({
       userId: userExist._id,
       userName: userExist.userName,

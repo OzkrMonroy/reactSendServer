@@ -9,12 +9,12 @@ exports.createFileLink = async (req, res, next) => {
     return res.status(400).json({errors: errors.array()});
   }
 
-  const { fileOriginalName } = req.body;
+  const { fileOriginalName, fileName } = req.body;
   
   const newLink = new Link();
 
   newLink.fileUrl = shortid.generate();
-  newLink.fileName = shortid.generate();
+  newLink.fileName = fileName;
   newLink.fileOriginalName = fileOriginalName;
 
   if(req.user){
@@ -31,7 +31,7 @@ exports.createFileLink = async (req, res, next) => {
 
   try {
     await newLink.save();
-    return res.json({msg: `${newLink.fileUrl}`});
+    res.json({msg: `${newLink.fileUrl}`});
     next();
   } catch (error) {
     console.log(error);
@@ -48,16 +48,14 @@ exports.getFileLink = async (req, res, next) => {
   
   res.json({msg: verifiedLink.fileName});
 
-  const { fileDownloadsCount, fileName } = verifiedLink;
-  
-  if(fileDownloadsCount === 1){
-    console.log('Borrando...');
-    req.file = fileName
-    await Link.findOneAndRemove({fileUrl: url})
-    next()
-  }else{
-    verifiedLink.fileDownloadsCount--;
-    verifiedLink.save();
-    console.log('restando...');
+  next();
+}
+
+exports.fetchAllLinks = async (req, res) => {
+  try {
+    const linksList = await Link.find({}).select('fileUrl -_id');
+    res.json({linksList})
+  } catch (error) {
+    console.log(error);
   }
 }

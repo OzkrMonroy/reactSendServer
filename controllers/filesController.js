@@ -35,8 +35,6 @@ exports.downloadFile = async (req, res, next) => {
   const { file } = req.params;
   const verifiedLink = await Link.findOne({fileName: file});
 
-  console.log(verifiedLink);
-
   const fileToDownload = __dirname+'/../uploads/'+file
   res.download(fileToDownload);
 

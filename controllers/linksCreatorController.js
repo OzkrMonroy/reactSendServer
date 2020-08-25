@@ -38,6 +38,33 @@ exports.createFileLink = async (req, res, next) => {
   }
 }
 
+exports.verifyLinkHasPassword = async (req, res, next) => {
+  const { url } = req.params;
+  const verifiedLink = await Link.findOne({fileUrl: url});
+
+  if(!verifiedLink){
+    res.status(404).json({msg: 'Link doesn\'t exists'});
+    return next();
+  }
+  if(verifiedLink.filePassword){
+    return res.json({password: true, link: verifiedLink.fileUrl});
+  }
+  next();
+}
+
+exports.verifyLinkPasswordIsCorrectly = async (req, res, next) => {
+  const { url } = req.params;
+  const { password } = req.body;
+
+  const link = await Link.findOne({fileUrl: url});
+  
+  if(bcrypt.compareSync(password, link.filePassword)){
+    next();
+  }else{
+    return res.status(401).json({msg: 'La contraseña es incorrecta'});
+  }
+}
+
 exports.getFileLink = async (req, res, next) => {
   const { url } = req.params;
   const verifiedLink = await Link.findOne({fileUrl: url});
@@ -46,7 +73,7 @@ exports.getFileLink = async (req, res, next) => {
     return res.status(404).json({msg: 'Link doesn\'t exists'});
   }
   
-  res.json({msg: verifiedLink.fileName});
+  res.json({file: verifiedLink.fileName, password: false});
 
   next();
 }
